@@ -53,6 +53,42 @@ server.post('/api/login', (rec,rez) => {
 })
 
 
+// not real specific on how we want to do this, so... I'll do it like we did in class
+function allInTheFamily ( ma, pa, granny) {
+    let {username, password} = ma.headers;
+    //console.log(ma.headers);
+    if( username && password) {
+        Softy.getBy({name: username}).first()
+        .then(paul => {
+            console.log(paul)
+            if (paul && bcrypt.compareSync(password, paul.password)) {
+                granny();
+            } else {
+                pa.send('Nah... that ain\'t right user info... try again')
+            }
+        })
+        .catch(err => {
+            pa.send('You done did something wrong...')
+        })
+    } else {
+        pa.status(400).json({message: "No... No.  You did something very wrong"})
+    }
+}
+
+server.get('/api/users', allInTheFamily, (rec, rez) =>{
+    Softy.getStuff()
+    .then(pomPom => {
+        rez.json(pomPom);
+
+    })
+    .catch(err => {
+        rez.send('Somehow you got all the way here... and still f\'d up...')
+    })
+})
+
+
+server.post('/api/users', )
+
 
 server.get('/', (rec,rez) =>{
     rez.send('L00k5 L1K3 W3 M4D3 1T')
