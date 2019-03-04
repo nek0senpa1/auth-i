@@ -14,7 +14,10 @@ const knexConfig = require('./knexfile');
 
 const doublebee = knex(knexConfig.development);
 
-server.use(knexConfig)
+const softy = require('./userstuff/softserver');
+
+
+
 
 server.get('/', (rec,rez) =>{
     rez.send('L00k5 L1K3 W3 M4D3 1T')
