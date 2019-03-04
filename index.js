@@ -54,28 +54,53 @@ server.post('/api/login', (rec,rez) => {
 
 
 // not real specific on how we want to do this, so... I'll do it like we did in class
-function allInTheFamily ( ma, pa, granny) {
-    let {username, password} = ma.headers;
+function allInTheFamily ( rec, rez, next) {
+    const {username, password} = rec.headers
     //console.log(ma.headers);
     if( username && password) {
-        Softy.getBy({name: username}).first()
+        Softy.getStuff({name: username}).first()
         .then(paul => {
-            console.log(paul)
-            if (paul && bcrypt.compareSync(password, paul.password)) {
-                granny();
+            console.log('paul:', paul);
+            console.log(password)
+            if (paul && bcrypt.compareSync(paul.password, password)) {
+                next();
             } else {
-                pa.send('Nah... that ain\'t right user info... try again')
+                rez.send('Nah... that ain\'t right user info... try again')
             }
         })
         .catch(err => {
-            pa.send('You done did something wrong...')
+            rez.send('You done did something wrong...')
         })
     } else {
-        pa.status(400).json({message: "No... No.  You did something very wrong"})
+       rez.status(400).json({message: "No... No.  You did something very wrong"})
     }
 }
 
-server.get('/api/users', allInTheFamily, (rec, rez) =>{
+function restricted2 (req, res, next) {
+    // we'll read the username and password from headers
+    // when testing the endpoint add these headers in Postman
+    const { username, password } = req.headers
+    if ( username && password ) {
+      Softy.getStuff({ username })
+      .first()
+      .then(user => {
+        //here user is the object being passed in which is why you use user dot password to check it.
+        if (user && bcrypt.compareSync(password, user.password)) {
+          next();
+        } else {
+          res.status(401).json({ message: "Invalid Creds"})
+        }
+      })
+      .catch(error => {
+        res.status(500).json(error)
+      })
+    } else {
+      res.status(400).json({ messages: "No Creds Provided"})
+    }
+  }
+
+
+server.get('/api/users', restricted2, (rec, rez) =>{
     Softy.getStuff()
     .then(pomPom => {
         rez.json(pomPom);
