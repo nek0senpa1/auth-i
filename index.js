@@ -14,8 +14,25 @@ const knexConfig = require('./knexfile');
 
 const doublebee = knex(knexConfig.development);
 
-const softy = require('./userstuff/softserver');
+const Softy = require('./userstuff/softserver');
 
+
+
+server.post('api/newuser', (rec,rez) => {
+    var newUser = rec.body;
+
+    const hasher = bcrypt.hashSync(newUser.password, 8);
+
+    newUser.password = hasher;
+
+    Softy.putStuff(newUser)
+    .then(nooby => {
+        rez.status(201).json({message: `New User ${nooby} is now registered`})
+    })
+    .catch(err => {
+        rez.status(500).json(err);
+    })
+});
 
 
 

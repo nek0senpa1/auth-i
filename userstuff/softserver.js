@@ -25,6 +25,6 @@ function getById(stuff) {
 function putStuff(item) {
     deebee('users').insert(item);
     setTimeout( function(){
-        return getById(item);
+        return item;
       }, 2500);
 }
